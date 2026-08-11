@@ -490,9 +490,15 @@ function setupEventListeners() {
   document.getElementById('closeCamBtn').addEventListener('click', closeCamera);
   document.getElementById('switchCamBtn').addEventListener('click', toggleCameraFacing);
   document.getElementById('shutterBtn').addEventListener('click', startCapture);
-  document.getElementById('feedbackBtn').addEventListener('click', () => {
-    alert("🎬 [오늘의 갓생 주간 피드백]\n\n'루틴을 성실히 실천 중이시네요! 아바타가 쑥쑥 크고 있습니다. 주말 루틴 완수율이 떨어지기 쉬우니 가벼운 이불 개기부터 내일도 실천해 보세요!'\n\n- AI 갓생 플래너 올림");
+  
+  // Month Record Video Reel modal listeners
+  document.getElementById('monthRecordBtn').addEventListener('click', openMonthRecordModal);
+  document.getElementById('monthRecordCloseBtn').addEventListener('click', closeMonthRecordModal);
+  document.getElementById('monthRecordModal').addEventListener('click', (event) => {
+    if (event.target.id === 'monthRecordModal') closeMonthRecordModal();
   });
+  document.getElementById('videoPlayPauseBtn').addEventListener('click', toggleVideoPlayPause);
+  document.getElementById('videoReplayBtn').addEventListener('click', replayMonthRecord);
 
   // Camera result handlers
   document.getElementById('confirmSuccessBtn').addEventListener('click', confirmSuccess);
@@ -2232,6 +2238,19 @@ async function confirmSuccess() {
     saveCurrentRoutinesLocally();
     await rewardTaskOnce(task.id, 2);
 
+    // Save Boomerang 1.5s clip to Month Record collection
+    if (capturedFrames && capturedFrames.length > 0) {
+      const clipData = {
+        id: 'clip_' + Date.now(),
+        taskId: activeCameraTaskId,
+        title: task.content,
+        date: new Date().toISOString().split('T')[0],
+        time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
+        frames: capturedFrames.slice(0, 12)
+      };
+      await window.godsaengStore.saveMonthlyClip(clipData);
+    }
+
     if (window.godsaengStore.isSupabaseActive && !String(task.id).startsWith('local_')) {
       try {
         updateSyncStatus('syncing');
@@ -2258,7 +2277,199 @@ async function confirmSuccess() {
   await updateAvatarDisplay();
   await renderWeeklyStats();
   await renderGrassMap();
-  closeCamera();
+}
+
+// ==========================================================================
+// MONTH RECORD VIDEO REEL ENGINE (한 달의 기록)
+// ==========================================================================
+let monthRecordClips = [];
+let currentClipIndex = 0;
+let currentClipFrameIndex = 0;
+let isMonthRecordPlaying = false;
+let monthRecordPlaybackTimer = null;
+
+function openMonthRecordModal() {
+  const modal = document.getElementById('monthRecordModal');
+  if (!modal) return;
+  modal.style.display = 'flex';
+  if (window.lucide) window.lucide.createIcons();
+  initMonthRecordPlayback();
+}
+
+function closeMonthRecordModal() {
+  const modal = document.getElementById('monthRecordModal');
+  if (modal) modal.style.display = 'none';
+  stopMonthRecordPlayback();
+}
+
+async function initMonthRecordPlayback() {
+  stopMonthRecordPlayback();
+  const savedClips = await window.godsaengStore.getMonthlyClips();
+
+  if (savedClips && savedClips.length > 0) {
+    monthRecordClips = savedClips;
+  } else {
+    const nowStr = new Date().toISOString().split('T')[0];
+    monthRecordClips = [
+      { id: 'demo_1', date: nowStr, time: '07:30', title: '🌅 아침 이불 개기 미션 인증', frames: createMockFrames('bed', '#4f46e5') },
+      { id: 'demo_2', date: nowStr, time: '08:15', title: '💧 생존 아침 물 한잔 마시기', frames: createMockFrames('water', '#06b6d4') },
+      { id: 'demo_3', date: nowStr, time: '14:00', title: '📚 갓생 책 30분 읽기 독서 완료', frames: createMockFrames('book', '#8b5cf6') },
+      { id: 'demo_4', date: nowStr, time: '17:30', title: '🏋️ 득근 덤벨 운동 루틴 완료', frames: createMockFrames('workout', '#10b981') },
+      { id: 'demo_5', date: nowStr, time: '23:00', title: '🌙 하루 마무리 취면 전 스트레칭', frames: createMockFrames('night', '#f59e0b') }
+    ];
+  }
+
+  currentClipIndex = 0;
+  currentClipFrameIndex = 0;
+  isMonthRecordPlaying = true;
+  updateMonthRecordUI();
+  playCurrentClip();
+}
+
+function updateMonthRecordUI() {
+  if (monthRecordClips.length === 0) return;
+  const clip = monthRecordClips[currentClipIndex];
+  document.getElementById('clipDate').textContent = `${clip.date} ${clip.time || ''}`;
+  document.getElementById('clipTitle').textContent = clip.title;
+  document.getElementById('videoCounterText').textContent = `${currentClipIndex + 1} / ${monthRecordClips.length} 클립`;
+  document.getElementById('totalClipsNum').textContent = monthRecordClips.length;
+  document.getElementById('totalDurationSec').textContent = `${(monthRecordClips.length * 1.5).toFixed(1)}초`;
+  
+  const playBtnText = document.getElementById('videoPlayText');
+  const playIcon = document.getElementById('videoPlayIcon');
+  if (playBtnText && playIcon) {
+    if (isMonthRecordPlaying) {
+      playBtnText.textContent = '일시정지';
+      playIcon.setAttribute('data-lucide', 'pause');
+    } else {
+      playBtnText.textContent = '재생하기';
+      playIcon.setAttribute('data-lucide', 'play');
+    }
+    if (window.lucide) window.lucide.createIcons();
+  }
+}
+
+function playCurrentClip() {
+  clearInterval(monthRecordPlaybackTimer);
+  if (!isMonthRecordPlaying || monthRecordClips.length === 0) return;
+
+  const clip = monthRecordClips[currentClipIndex];
+  const frames = clip.frames || [];
+  const canvas = document.getElementById('monthRecordCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = 360;
+  canvas.height = 260;
+
+  let direction = 1;
+  currentClipFrameIndex = 0;
+  let frameCount = 0;
+  const maxFramesPerClip = 16;
+
+  const loadedImages = [];
+  let isImageSource = false;
+
+  if (frames.length > 0 && typeof frames[0] === 'string' && frames[0].startsWith('data:image')) {
+    isImageSource = true;
+    frames.forEach(src => {
+      const img = new Image();
+      img.src = src;
+      loadedImages.push(img);
+    });
+  }
+
+  monthRecordPlaybackTimer = setInterval(() => {
+    if (!isMonthRecordPlaying) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (isImageSource && loadedImages.length > 0) {
+      const img = loadedImages[currentClipFrameIndex % loadedImages.length];
+      if (img && img.complete) {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      } else {
+        renderCanvasFallbackFrame(ctx, canvas, clip, currentClipFrameIndex);
+      }
+    } else {
+      renderCanvasFallbackFrame(ctx, canvas, clip, currentClipFrameIndex);
+    }
+
+    const progressFill = document.getElementById('videoProgressFill');
+    if (progressFill) {
+      const overallProgress = ((currentClipIndex + (frameCount / maxFramesPerClip)) / monthRecordClips.length) * 100;
+      progressFill.style.width = `${Math.min(100, overallProgress)}%`;
+    }
+
+    currentClipFrameIndex += direction;
+    if (currentClipFrameIndex >= (frames.length > 0 ? frames.length - 1 : 8) || currentClipFrameIndex <= 0) {
+      direction *= -1;
+    }
+
+    frameCount++;
+    if (frameCount >= maxFramesPerClip) {
+      currentClipIndex = (currentClipIndex + 1) % monthRecordClips.length;
+      updateMonthRecordUI();
+      playCurrentClip();
+    }
+  }, 110);
+}
+
+function renderCanvasFallbackFrame(ctx, canvas, clip, frameIdx) {
+  const colors = ['#1e1b4b', '#0f766e', '#701a75', '#854d0e', '#166534'];
+  const bg = colors[currentClipIndex % colors.length];
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const tick = Date.now() / 150;
+  const pulseR = 40 + Math.sin(tick + frameIdx) * 8;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+  ctx.beginPath();
+  ctx.arc(canvas.width / 2, canvas.height / 2, pulseR + 15, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+  ctx.beginPath();
+  ctx.arc(canvas.width / 2, canvas.height / 2 + Math.sin(tick) * 5, pulseR, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#10b981';
+  ctx.beginPath();
+  ctx.arc(canvas.width / 2 - 12, canvas.height / 2 - 15, 14, 0, Math.PI * 2);
+  ctx.arc(canvas.width / 2 + 12, canvas.height / 2 - 15, 14, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#ff6b00';
+  ctx.font = 'bold 12px monospace';
+  ctx.textAlign = 'right';
+  ctx.fillText(`REC 🔴 1.5s BOOMERANG`, canvas.width - 15, 25);
+  ctx.fillText(`${clip.date} ${clip.time || '12:00'}`, canvas.width - 15, canvas.height - 15);
+}
+
+function createMockFrames(type, color) {
+  return Array(8).fill(type);
+}
+
+function toggleVideoPlayPause() {
+  isMonthRecordPlaying = !isMonthRecordPlaying;
+  updateMonthRecordUI();
+  if (isMonthRecordPlaying) {
+    playCurrentClip();
+  } else {
+    clearInterval(monthRecordPlaybackTimer);
+  }
+}
+
+function replayMonthRecord() {
+  currentClipIndex = 0;
+  currentClipFrameIndex = 0;
+  isMonthRecordPlaying = true;
+  updateMonthRecordUI();
+  playCurrentClip();
+}
+
+function stopMonthRecordPlayback() {
+  isMonthRecordPlaying = false;
+  clearInterval(monthRecordPlaybackTimer);
 }
 
 function retakePhoto() {

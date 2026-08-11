@@ -14,6 +14,7 @@ class GodsaengStore {
     this.titleKey = 'complete_active_title';
     this.weeklyKey = 'complete_weekly_achievement';
     this.monthlyGrassKey = 'complete_monthly_grass';
+    this.monthlyClipsKey = 'complete_monthly_clips';
 
     // Local Items Catalog definition (matching avatar.js assets)
     this.itemsCatalog = {
@@ -104,7 +105,8 @@ class GodsaengStore {
       skinKey: 'complete_skin',
       titleKey: 'complete_active_title',
       weeklyKey: 'complete_weekly_achievement',
-      monthlyGrassKey: 'complete_monthly_grass'
+      monthlyGrassKey: 'complete_monthly_grass',
+      monthlyClipsKey: 'complete_monthly_clips'
     };
     Object.entries(baseKeys).forEach(([property, baseKey]) => {
       const scopedKey = `${baseKey}::${encodeURIComponent(this.localScope)}`;
@@ -720,6 +722,18 @@ class GodsaengStore {
         console.error("Supabase daily_summaries upsert failed", e);
       }
     }
+  }
+
+  // Monthly Boomerang Clips Collection
+  async getMonthlyClips() {
+    return JSON.parse(localStorage.getItem(this.monthlyClipsKey) || '[]');
+  }
+
+  async saveMonthlyClip(clipData) {
+    const list = await this.getMonthlyClips();
+    list.push(clipData);
+    if (list.length > 60) list.shift();
+    localStorage.setItem(this.monthlyClipsKey, JSON.stringify(list));
   }
 }
 

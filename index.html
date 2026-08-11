@@ -268,9 +268,9 @@
           <div class="grass-grid" id="grassGrid">
             <!-- Calendar cells -->
           </div>
-          <button class="weekly-feedback-btn" id="feedbackBtn">
-            <i data-lucide="play-circle"></i>
-            주간 피드백 동영상 보기
+          <button class="month-record-btn" id="monthRecordBtn">
+            <i data-lucide="clapperboard"></i>
+            한 달의 기록 (인증 1.5초 움짤 모아보기)
           </button>
         </div>
 
@@ -592,6 +592,67 @@
             <li>해당 등급의 모든 아이템을 소유한 경우 타 등급의 미보유 아이템이 지급될 수 있습니다.</li>
             <li>획득한 아이템은 <b>[내 옷장 (OOTD)]</b> 탭에서 즉시 착용할 수 있습니다.</li>
           </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Month Record Video Reel Modal (한 달의 기록) -->
+  <div class="month-record-modal-overlay" id="monthRecordModal" style="display: none;">
+    <div class="month-record-card">
+      <div class="month-record-header">
+        <div class="month-record-title">
+          <i data-lucide="clapperboard" style="color: var(--accent-yellow)"></i>
+          <span>🎬 한 달의 기록 (30일 성취 하이라이트)</span>
+        </div>
+        <button class="month-record-close" id="monthRecordCloseBtn" aria-label="닫기">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <div class="month-record-body">
+        <!-- Film Screen Container -->
+        <div class="video-screen-container">
+          <canvas id="monthRecordCanvas" class="month-record-canvas"></canvas>
+          <div class="video-overlay-info">
+            <div class="video-clip-date-row">
+              <span class="video-clip-date" id="clipDate">2026-08-11</span>
+              <span class="video-clip-badge" id="clipBadge">1.5s Boomerang</span>
+            </div>
+            <div class="video-clip-title" id="clipTitle">루틴 미션 인증 성공</div>
+          </div>
+          <div class="video-progress-bar">
+            <div class="video-progress-fill" id="videoProgressFill"></div>
+          </div>
+        </div>
+
+        <!-- Controls Row -->
+        <div class="video-controls-row">
+          <button class="video-control-btn" id="videoPlayPauseBtn">
+            <i data-lucide="pause" id="videoPlayIcon"></i>
+            <span id="videoPlayText">일시정지</span>
+          </button>
+          <div class="video-counter" id="videoCounterText">1 / 5 클립</div>
+          <button class="video-control-btn secondary" id="videoReplayBtn">
+            <i data-lucide="rotate-ccw"></i>
+            <span>처음부터</span>
+          </button>
+        </div>
+
+        <!-- Monthly Stats Footer -->
+        <div class="month-record-stats-box">
+          <div class="stat-pill">
+            <span class="stat-num" id="totalClipsNum">5</span>
+            <span class="stat-label">총 인증 움짤</span>
+          </div>
+          <div class="stat-pill">
+            <span class="stat-num" id="totalDurationSec">7.5초</span>
+            <span class="stat-label">하이라이트 분량</span>
+          </div>
+          <div class="stat-pill">
+            <span class="stat-num" style="color: var(--primary-dark)">100%</span>
+            <span class="stat-label">갓생 실천 완수</span>
+          </div>
         </div>
       </div>
     </div>
