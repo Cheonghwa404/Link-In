@@ -7,7 +7,7 @@
 
 ## 🔗 서비스 링크 & 깃허브 저장소
 
-- 🚀 **Vercel 배포 라이브 서비스**: [link-in-omega.vercel.app](link-in-omega.vercel.app)
+- 🚀 **Vercel 배포 라이브 서비스**: [https://link-in-omega.vercel.app/](https://link-in-omega.vercel.app/)
 - 💻 **GitHub Repository**: [https://github.com/Cheonghwa404/Link-In](https://github.com/Cheonghwa404/Link-In) (`main`, `main2` 브랜치)
 - ⚡ **배포 플랫폼**: Vercel (Vercel Static & PWA)
 - 🗄️ **데이터베이스 / 인증**: Supabase (PostgreSQL, Auth, RLS)
