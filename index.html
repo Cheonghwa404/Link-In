@@ -24,7 +24,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="runtime-config.js"></script>
   
-  <link rel="stylesheet" href="style.css?v=22">
+  <link rel="stylesheet" href="style.css?v=26">
 </head>
 
 <body>
@@ -301,7 +301,7 @@
               <i data-lucide="help-circle"></i>
             </button>
             <button class="lucky-box-btn" id="luckyBoxBtn">
-              <i data-lucide="box"></i> 럭키박스 뽑기 (2코인)
+              <i data-lucide="box"></i> 럭키박스 (2코인)
             </button>
           </div>
         </div>
@@ -310,6 +310,15 @@
         <div class="shop-nav">
           <button class="shop-nav-item active" data-subtab="market">코인 상점</button>
           <button class="shop-nav-item" data-subtab="closet">내 옷장 (OOTD)</button>
+        </div>
+
+        <!-- Category Filter Tabs (가로 스크롤 & 탭 필터링) -->
+        <div class="closet-category-tabs" id="shopCategoryTabs">
+          <button class="closet-tab active" data-category="all">전체</button>
+          <button class="closet-tab" data-category="skin">스킨</button>
+          <button class="closet-tab" data-category="accessory">장신구</button>
+          <button class="closet-tab" data-category="background">배경</button>
+          <button class="closet-tab" data-category="title">칭호</button>
         </div>
 
         <!-- Subtab contents -->
@@ -658,11 +667,41 @@
     </div>
   </div>
 
+  <!-- 3D 옷장 문 뽑기 애니메이션 모달 -->
+  <div class="gacha-modal" id="gachaModal" aria-hidden="true">
+    <div class="gacha-container">
+      <div class="closet-gacha-wrap" id="closetGachaWrap">
+        <div class="closet-aura" id="closetAura"></div>
+        <div class="closet-wardrobe" id="closetWardrobe">
+          <div class="wardrobe-door door-left" id="doorLeft">
+            <div class="door-handle"></div>
+          </div>
+          <div class="wardrobe-door door-right" id="doorRight">
+            <div class="door-handle"></div>
+          </div>
+          <div class="wardrobe-interior" id="wardrobeInterior"></div>
+        </div>
+      </div>
+
+      <div class="gacha-light" id="gachaLight"></div>
+
+      <div class="gacha-result" id="gachaResult">
+        <div class="gacha-item-icon" id="gachaItemIcon"></div>
+        <div class="gacha-item-name" id="gachaItemName"></div>
+        <div class="gacha-item-desc" id="gachaItemDesc"></div>
+        <div class="gacha-btn-group">
+          <button class="gacha-equip-btn" id="gachaEquipBtn" style="display: none;">✨ 바로 장착하기</button>
+          <button class="gacha-close-btn" id="gachaCloseBtn">확인</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Local Script Dependencies -->
-  <script src="store.js?v=22"></script>
-  <script src="ai.js?v=22"></script>
-  <script src="avatar.js?v=22"></script>
-  <script src="app.js?v=22"></script>
+  <script src="store.js?v=26"></script>
+  <script src="ai.js?v=26"></script>
+  <script src="avatar.js?v=26"></script>
+  <script src="app.js?v=26"></script>
 </body>
 
 </html>

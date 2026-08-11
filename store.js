@@ -588,7 +588,9 @@ class GodsaengStore {
         success: true,
         type: 'common',
         grade: '일반',
+        icon: '🪙',
         name: '1 코인 환급',
+        desc: '1 코인 환급 (코인 소진 없이 재도전 가능)',
         message: '⚪ [일반 등급] 1 코인이 환급되었습니다! (코인 소진 없이 재도전 가능) 🪙'
       };
     }
@@ -609,7 +611,10 @@ class GodsaengStore {
         return {
           success: true,
           type: 'refund',
+          grade: '전설',
+          icon: '🏆',
           name: '럭키박스 마스터',
+          desc: '모든 아이템 소유 완료 (2코인 환급)',
           message: '🏆 이미 모든 아이템을 소유하셨습니다! 2코인을 환급합니다.'
         };
       }
@@ -639,12 +644,18 @@ class GodsaengStore {
     };
     const tierTag = tierIcons[prizeItem.grade] || '🎉';
     const isExclusive = prizeId === 'crown' || prizeId === 'goggles';
+    const iconMatch = prizeItem.name.match(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u);
+    const itemIcon = iconMatch ? iconMatch[0] : (isExclusive ? '👑' : '🎁');
 
     return {
       success: true,
       type: isExclusive ? 'exclusive' : 'store_item',
       itemId: prizeId,
       name: prizeItem.name,
+      grade: prizeItem.grade,
+      icon: itemIcon,
+      desc: prizeItem.desc || '새로운 아이템을 획득했습니다!',
+      item: prizeItem,
       message: isExclusive
         ? `👑✨ 대박!! 럭키박스 한정 템 [${prizeItem.name}] 당첨!`
         : `${tierTag} 축하합니다! [${prizeItem.name}] 당첨! 🎉`

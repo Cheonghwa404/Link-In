@@ -77,11 +77,47 @@ body {
   }
 
   .phone-header-bar {
-    padding-top: env(safe-area-inset-top);
+    height: calc(44px + env(safe-area-inset-top, 0px));
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-left: max(20px, env(safe-area-inset-left, 0px));
+    padding-right: max(20px, env(safe-area-inset-right, 0px));
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
   }
 
-  .tab-bar {
-    padding-bottom: env(safe-area-inset-bottom);
+  .dynamic-island {
+    display: none;
+  }
+
+  .phone-time {
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .app-screen {
+    padding-top: calc(44px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(83px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .alarm-time-inputs {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 6px;
+  }
+
+  .time-select {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+
+  .alarm-quick-mins {
+    gap: 4px;
+  }
+
+  .quick-min-btn {
+    padding: 4px 8px;
+    font-size: 10.5px;
   }
 }
 
@@ -137,7 +173,7 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding-top: 44px;
+  padding-top: 0;
   padding-bottom: 83px;
   position: relative;
   height: 100%;
@@ -1458,17 +1494,19 @@ input:focus-visible {
 }
 
 .lucky-box-btn {
-  padding: 10px 16px;
+  padding: 8px 12px;
   background: var(--primary-color);
   color: var(--primary-dark);
   border: none;
   border-radius: 14px;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 850;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
   transition: transform 0.2s;
 }
 
@@ -1480,7 +1518,7 @@ input:focus-visible {
 .shop-nav {
   display: flex;
   border-bottom: 1.5px solid var(--border-color);
-  margin-bottom: 16px;
+  margin-bottom: 6px;
 }
 
 .shop-nav-item {
@@ -2848,5 +2886,344 @@ input:checked + .alarm-slider:before {
 .stat-label {
   font-size: 10px;
   color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Category Tabs & 3D Closet Gacha Animation CSS
+   ========================================================================== */
+
+/* Category Filter Tabs */
+.closet-category-tabs {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  min-height: 44px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  gap: 8px;
+  padding: 2px 4px 8px 4px;
+  margin-top: 0;
+  margin-bottom: 12px;
+  border-bottom: 1.5px solid var(--border-color);
+  scrollbar-width: none; /* Firefox */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  touch-action: pan-x pan-y;
+  box-sizing: border-box;
+}
+
+.closet-category-tabs::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
+
+.closet-tab {
+  flex-shrink: 0;
+  height: 36px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted, #64748b);
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  user-select: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+}
+
+.closet-tab:hover {
+  border-color: var(--primary-color);
+  color: var(--text-main);
+  transform: translateY(-1px);
+}
+
+.closet-tab.active {
+  background: var(--primary-color, #9FE870);
+  color: var(--primary-dark, #0E0F0C);
+  border-color: var(--primary-color, #9FE870);
+  font-weight: 850;
+  box-shadow: 0 3px 10px rgba(159, 232, 112, 0.4);
+}
+
+/* 3D Closet Wardrobe Gacha Animation Modal */
+.gacha-modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.88);
+  z-index: 10000;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.gacha-modal.show {
+  display: flex;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.gacha-container {
+  text-align: center;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 3D Closet Wrapping Container */
+.closet-gacha-wrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  perspective: 900px;
+  width: 170px;
+  height: 250px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Closet Aura */
+.closet-aura {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  filter: blur(25px);
+  opacity: 0;
+  transition: background 0.4s ease, opacity 0.4s ease, filter 0.4s ease;
+  z-index: 1;
+}
+
+.closet-aura.step-common {
+  opacity: 0.35;
+  background: rgba(148, 163, 184, 0.3);
+  filter: blur(18px);
+}
+
+.closet-aura.step-rare {
+  opacity: 0.45;
+  background: rgba(59, 130, 246, 0.5);
+  filter: blur(22px);
+}
+
+.closet-aura.step-epic {
+  opacity: 0.55;
+  background: rgba(168, 85, 247, 0.55);
+  filter: blur(25px);
+}
+
+.closet-aura.step-legendary {
+  opacity: 0.7;
+  background: rgba(245, 158, 11, 0.6);
+  filter: blur(30px);
+}
+
+/* Closet Body */
+.closet-wardrobe {
+  position: relative;
+  width: 160px;
+  height: 240px;
+  background: #1e293b;
+  border: 4px solid #334155;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  z-index: 2;
+  overflow: visible;
+  transform-style: preserve-3d;
+  transition: opacity 0.4s ease;
+}
+
+/* Impact Shaking Animation */
+.closet-wardrobe.grade-bump {
+  animation: gradeBump 0.35s ease-out;
+}
+
+@keyframes gradeBump {
+  0% { transform: scale(1) rotate(0deg); }
+  35% { transform: scale(1.05) rotate(-4deg); }
+  70% { transform: scale(1.05) rotate(4deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+/* 3D Wardrobe Doors (Left / Right) */
+.wardrobe-door {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(135deg, #334155, #1e293b);
+  border: 2px solid #475569;
+  box-sizing: border-box;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  backface-visibility: hidden;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+}
+
+.door-left {
+  left: 0;
+  border-radius: 12px 0 0 12px;
+  transform-origin: left center;
+  justify-content: flex-end;
+  padding-right: 6px;
+}
+
+.door-right {
+  right: 0;
+  border-radius: 0 12px 12px 0;
+  transform-origin: right center;
+  justify-content: flex-start;
+  padding-left: 6px;
+}
+
+.door-handle {
+  width: 8px;
+  height: 36px;
+  background: #94a3b8;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* Door Opened State */
+.closet-wardrobe.open .door-left {
+  transform: rotateY(-115deg);
+}
+
+.closet-wardrobe.open .door-right {
+  transform: rotateY(115deg);
+}
+
+.wardrobe-interior {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: radial-gradient(circle, #334155 0%, #0f172a 100%);
+  border-radius: 12px;
+  z-index: 1;
+}
+
+/* Light Burst Glow */
+.gacha-light {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 0; height: 0;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  opacity: 0;
+  z-index: -1;
+  box-shadow: 0 0 100px 50px currentColor;
+}
+
+.gacha-light.glowing-burst {
+  animation: lightBurst 1.5s forwards;
+}
+
+@keyframes lightBurst {
+  0% { width: 0; height: 0; opacity: 0; }
+  50% { width: 240px; height: 240px; opacity: 1; }
+  100% { width: 480px; height: 480px; opacity: 0; }
+}
+
+/* Gacha Result Card */
+.gacha-result {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) translateY(30px);
+  opacity: 0;
+  pointer-events: none;
+  width: 85%;
+  max-width: 280px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  padding: 24px 20px;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.gacha-result.float-up {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) translateY(0);
+}
+
+.gacha-item-icon {
+  font-size: 64px;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.2));
+}
+
+.gacha-item-name {
+  color: #0f172a;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.gacha-item-desc {
+  color: #475569;
+  font-size: 13px;
+  margin-bottom: 20px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.gacha-btn-group {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  justify-content: center;
+}
+
+.gacha-close-btn {
+  background: #3b82f6;
+  color: #ffffff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.gacha-close-btn:hover {
+  background: #2563eb;
+}
+
+.gacha-equip-btn {
+  background: #10b981;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.gacha-equip-btn:hover {
+  background: #059669;
 }
 
